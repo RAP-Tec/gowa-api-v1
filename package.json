@@ -1,13 +1,14 @@
 {
   "name": "gowa-api-v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm install && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint", 
-    "deploy": "npm install --legacy-peer-deps && next build && next start"
+    "deploy": "next build && next start",
+    "deploy:clean": "rm -rf .next && npm install && next build && next start"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
