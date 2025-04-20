@@ -312,6 +312,44 @@ export const evolutionApi = {
   }
 }
 
+// Add this new method to the evolutionApi object
+
+// Obter detalhes da instância pelo número
+async getInstanceDetailsByNumber(number: string): Promise<{ exists: boolean; instanceName?: string; status?: string }> {
+  try {
+    const response = await this.listInstances();
+    
+    if (response.success && response.data) {
+      // Normalize the number by removing any non-digit characters
+      const normalizedSearchNumber = number.replace(/\D/g, '');
+      
+      const instance = response.data.find(
+        (inst) => {
+          // If the instance has a number, normalize it and compare
+          if (inst.number) {
+            const normalizedInstNumber = inst.number.replace(/\D/g, '');
+            return normalizedInstNumber === normalizedSearchNumber;
+          }
+          return false;
+        }
+      );
+      
+      if (instance) {
+        return {
+          exists: true,
+          instanceName: instance.instanceName,
+          status: instance.status
+        };
+      }
+    }
+    
+    return { exists: false };
+  } catch (error) {
+    console.error("Erro ao obter detalhes da instância pelo número:", error);
+    return { exists: false };
+  }
+}
+
 // Função auxiliar para mapear o status da API para o formato esperado pelo frontend
 function mapStatusFromApi(apiStatus: string): "connected" | "disconnected" | "connecting" {
   if (!apiStatus) return "disconnected"

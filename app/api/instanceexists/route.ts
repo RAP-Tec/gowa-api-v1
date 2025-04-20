@@ -18,16 +18,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if number is provided
-    if (!body.number) {
+    // Check if instanceName is provided
+    if (!body.instanceName) {
       return NextResponse.json(
-        { success: false, error: "Missing required parameter: number" },
+        { success: false, error: "Missing required parameter: instanceName" },
         { status: 400 }
       )
     }
 
-    // Call the Evolution API to check if instance exists by number and get its details
-    const instanceDetails = await evolutionApi.getInstanceDetailsByNumber(body.number)
+    // Call the Evolution API to check if instance exists and get its details
+    const instanceDetails = await evolutionApi.getInstanceDetails(body.instanceName)
     
     // Return the response
     return NextResponse.json({
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       data: instanceDetails
     })
   } catch (error) {
-    console.error("Error in /deviceexists endpoint:", error)
+    console.error("Error in /instanceexists endpoint:", error)
     
     return NextResponse.json(
       { 
