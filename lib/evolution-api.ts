@@ -5,6 +5,7 @@ interface ApiResponse<T = any> {
   data?: T
   error?: string
   message?: string
+  steps?: string
 }
 
 interface Instance {
@@ -154,7 +155,8 @@ export const evolutionApi = {
   
       return {
         success: true,
-        message: "Instância criada com sucesso",
+        message: "Device instance created successfully",
+        steps: "Send the QR Code or pairing Code to the customer, and ask them to read it within 30 seconds",
         data: {
           instanceName,
           number: number || null
