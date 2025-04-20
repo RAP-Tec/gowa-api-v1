@@ -29,6 +29,24 @@ export async function POST(request: NextRequest) {
     // Call the Evolution API to create a new instance
     const result = await evolutionApi.createInstance(body.instanceName, body.number)
     
+    if (result.success) {
+      // Get QR code for the newly created instance
+      const qrResult = await evolutionApi.getQrCode(body.instanceName)
+      
+      // Combine the results
+      return NextResponse.json({
+        ...result,
+        data: {
+          ...result.data,
+          qrcode: qrResult.success ? qrResult.data?.qrcode : null,
+          pairingCode: qrResult.success ? qrResult.data?.pairingCode : null
+        }
+      })
+    }
+    
+    // Return the original result if instance creation failed
+    return NextResponse.json(result)
+    
     // Return the response with instanceName and number
     return NextResponse.json({
       ...result,
