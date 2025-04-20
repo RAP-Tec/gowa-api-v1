@@ -29,8 +29,14 @@ export async function POST(request: NextRequest) {
     // Call the Evolution API to create a new instance
     const result = await evolutionApi.createInstance(body.instanceName, body.number)
     
-    // Return the response
-    return NextResponse.json(result)
+    // Return the response with instanceName and number
+    return NextResponse.json({
+      ...result,
+      data: {
+        instanceName: body.instanceName,
+        number: body.number || null
+      }
+    })
   } catch (error) {
     console.error("Error in /createdevice endpoint:", error)
     

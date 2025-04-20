@@ -133,7 +133,7 @@ export const evolutionApi = {
           error: "Uma instância com este nome já existe",
         }
       }
-
+  
       // Payload mínimo com apenas os campos essenciais
       const payload = {
         instanceName,
@@ -142,19 +142,23 @@ export const evolutionApi = {
         qrcode: true,
         ...(number && { number }),
       }
-
+  
       console.log("Payload para criação de instância:", JSON.stringify(payload))
-
+  
       const response = await fetchFromApi("/instance/create", {
         method: "POST",
         body: JSON.stringify(payload),
       })
-
+  
       console.log("Resposta da criação de instância:", response)
-
+  
       return {
         success: true,
         message: "Instância criada com sucesso",
+        data: {
+          instanceName,
+          number: number || null
+        }
       }
     } catch (error) {
       console.error("Erro ao criar instância:", error)
