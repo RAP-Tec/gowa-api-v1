@@ -4,6 +4,7 @@ import { evolutionApi } from "@/lib/evolution-api"
 // API key for authentication
 const API_KEY = process.env.AUTH_KEY || "kfrngOCiD8FbpoRrjRe9vagrVEYeqc1B0eEWxsNdieWjaRPHSM"
 
+// Make sure to export the handler functions properly
 export async function POST(request: NextRequest) {
   try {
     // Parse the request body
@@ -46,6 +47,14 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
+}
+
+// Also export GET method to ensure the route is recognized
+export async function GET() {
+  return NextResponse.json(
+    { success: false, error: "Method not allowed. Use POST instead." },
+    { status: 405 }
+  )
 }
 
 // Handle OPTIONS requests for CORS
