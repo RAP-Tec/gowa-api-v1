@@ -26,15 +26,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Call the Evolution API to check if instance exists
-    const exists = await evolutionApi.instanceExists(body.instanceName)
+    // Call the Evolution API to check if instance exists and get its details
+    const instanceDetails = await evolutionApi.getInstanceDetails(body.instanceName)
     
     // Return the response
     return NextResponse.json({
       success: true,
-      data: {
-        exists: exists
-      }
+      data: instanceDetails
     })
   } catch (error) {
     console.error("Error in /deviceexists endpoint:", error)
