@@ -284,6 +284,32 @@ export const evolutionApi = {
       }
     }
   },
+
+  // Obter detalhes da instância
+  async getInstanceDetails(instanceName: string): Promise<{ exists: boolean; number?: string; status?: string }> {
+    try {
+      const response = await this.listInstances();
+      
+      if (response.success && response.data) {
+        const instance = response.data.find(
+          (inst) => inst.instanceName.toLowerCase() === instanceName.toLowerCase()
+        );
+        
+        if (instance) {
+          return {
+            exists: true,
+            number: instance.number,
+            status: instance.status
+          };
+        }
+      }
+      
+      return { exists: false };
+    } catch (error) {
+      console.error("Erro ao obter detalhes da instância:", error);
+      return { exists: false };
+    }
+  }
 }
 
 // Função auxiliar para mapear o status da API para o formato esperado pelo frontend
@@ -304,32 +330,6 @@ function mapStatusFromApi(apiStatus: string): "connected" | "disconnected" | "co
       return "connecting"
     default:
       return "disconnected"
-  }
-}
-
-// Add this new method to the evolutionApi object
-async getInstanceDetails(instanceName: string): Promise<{ exists: boolean; number?: string; status?: string }> {
-  try {
-    const response = await this.listInstances();
-    
-    if (response.success && response.data) {
-      const instance = response.data.find(
-        (inst) => inst.instanceName.toLowerCase() === instanceName.toLowerCase()
-      );
-      
-      if (instance) {
-        return {
-          exists: true,
-          number: instance.number,
-          status: instance.status
-        };
-      }
-    }
-    
-    return { exists: false };
-  } catch (error) {
-    console.error("Erro ao obter detalhes da instância:", error);
-    return { exists: false };
   }
 }
 
