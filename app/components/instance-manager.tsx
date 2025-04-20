@@ -375,7 +375,12 @@ export default function InstanceManager() {
                   <div className="flex items-center gap-4">
                     <Smartphone className="h-10 w-10 text-muted-foreground" />
                     <div>
-                      <p className="font-medium">{instance.instanceName}</p>
+                      <div className="flex flex-wrap gap-x-4 mb-1">
+                        <p className="font-medium"><span className="text-muted-foreground text-sm">Nome:</span> {instance.instanceName}</p>
+                        {instance.number && (
+                          <p className="font-medium"><span className="text-muted-foreground text-sm">Número:</span> {instance.number}</p>
+                        )}
+                      </div>
                       <p className="text-sm text-muted-foreground">Status: {renderStatus(instance.status)}</p>
                     </div>
                   </div>

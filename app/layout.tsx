@@ -7,9 +7,9 @@ import { ThemeProvider } from "@/components/theme-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Evolution API",
-  description: "Gerenciamento de instâncias da API Evolution",
-    generator: 'v0.dev'
+  title: "Gowa API",
+  description: "Gerenciamento de instâncias da Gowa API",
+  generator: 'gowa-api'
 }
 
 export default function RootLayout({
