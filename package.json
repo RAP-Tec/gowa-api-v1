@@ -6,8 +6,8 @@
     "dev": "next dev",
     "build": "npm install && next build",
     "start": "next start",
-    "lint": "next lint",
-    "deploy": "npm install --legacy-peer-deps && next build && next start"  
+    "lint": "next lint", 
+    "deploy": "rm -rf .next && npm install --legacy-peer-deps && next build && next start"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
