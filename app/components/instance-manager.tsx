@@ -309,7 +309,7 @@ export default function InstanceManager() {
               </Label>
               <Input id="number" name="number" placeholder="Ex: 5511987654321" className="h-11" />
               <p className="text-sm text-muted-foreground">
-                Inclua o código do país e DDD, sem espaços ou caracteres especiais. * Números de WhatsApp com DDD superior a 30 podem não ter número 9 no início, exemplo: SP: 5511987654321 | BH: 553187654321
+                Inclua o código do país e DDD, sem espaços ou caracteres especiais. ⚠️ Números de WhatsApp com DDD superior a 30 podem não ter número 9 no início, exemplo: SP: 5511987654321 | BH: 553187654321
               </p>
             </div>
           </CardContent>
