@@ -300,16 +300,16 @@ export default function InstanceManager() {
               <Label htmlFor="instanceName" className="text-base">
                 Nome da Instância
               </Label>
-              <Input id="instanceName" name="instanceName" placeholder="Ex: meu-whatsapp" className="h-11" required />
+              <Input id="instanceName" name="instanceName" placeholder="Ex: nome-whatsapp-cliente" className="h-11" required />
               <p className="text-sm text-muted-foreground">Use apenas letras minúsculas, números e hífens.</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="number" className="text-base">
                 Número de Telefone
               </Label>
-              <Input id="number" name="number" placeholder="Ex: 5511999999999" className="h-11" />
+              <Input id="number" name="number" placeholder="Ex: 5511987654321" className="h-11" />
               <p className="text-sm text-muted-foreground">
-                Inclua o código do país e DDD, sem espaços ou caracteres especiais. (Opcional)
+                Inclua o código do país e DDD, sem espaços ou caracteres especiais.</br>⚠️ Números de WhatsApp com DDD superior a 30 podem não ter número 9 no início, exemplo: SP: 5511987654321 | BH: 553187654321
               </p>
             </div>
           </CardContent>
