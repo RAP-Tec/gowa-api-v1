@@ -1,6 +1,6 @@
 # API Management
 
-Aplicação para gerenciamento de instâncias da API Evolution.
+Aplicação para gerenciamento de instâncias da Gowa API.
 
 ## Requisitos
 
