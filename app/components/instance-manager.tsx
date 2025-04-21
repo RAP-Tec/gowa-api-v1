@@ -403,7 +403,7 @@ export default function InstanceManager() {
                         ) : (
                           <>
                             <QrCode className="mr-2 h-4 w-4" />
-                            Gerar QR Code e Código de Pareamento
+                            Gerar QR Code   ℹ️ Pairing Code
                           </>
                         )}
                       </Button>
