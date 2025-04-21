@@ -27,13 +27,21 @@ export async function POST(request: NextRequest) {
     }
 
     // Call the Evolution API to check if instance exists
-    const exists = await evolutionApi.instanceExists(body.instanceName)
-    
+ //   const exists = await evolutionApi.instanceExists(body.instanceName)
     // Return the response
-    return NextResponse.json({
-      success: true,
-      exists: exists
-    })
+//    return NextResponse.json({
+//      success: true,
+//      exists: exists
+//    })
+
+   // Call the Evolution API to check if instance exists and get its details
+   const instanceDetails = await evolutionApi.getInstanceDetails(body.instanceName)
+    
+   // Return the response
+   return NextResponse.json({
+     success: true,
+     data: instanceDetails
+   })
   } catch (error) {
     console.error("Error in /checkconnection endpoint:", error)
     
