@@ -52,12 +52,7 @@ export function LoginDialog({ open, onOpenChange, onLoginSuccess }: LoginDialogP
   };
 
   return (
-    <Dialog open={open} onOpenChange={(open) => {
-      // Prevent closing the dialog by clicking outside if not authenticated
-      if (!open) {
-        onOpenChange(open);
-      }
-    }}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Acesso Restrito</DialogTitle>
