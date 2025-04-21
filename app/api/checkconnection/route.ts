@@ -4,7 +4,7 @@ import { evolutionApi } from "@/lib/evolution-api"
 // API key for authentication
 const API_KEY = process.env.AUTH_KEY || "kfrngOCiD8FbpoRrjRe9vagrVEYeqc1B0eEWxsNdieWjaRPHSM"
 
-// Handle POST requests to check instance connection status
+// Handle POST requests to check if an instance exists
 export async function POST(request: NextRequest) {
   try {
     // Parse the request body
@@ -26,11 +26,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Call the Evolution API to check instance status
-    const result = await evolutionApi.checkInstanceStatus(body.instanceName)
+    // Call the Evolution API to check if instance exists
+    const exists = await evolutionApi.instanceExists(body.instanceName)
     
     // Return the response
-    return NextResponse.json(result)
+    return NextResponse.json({
+      success: true,
+      exists: exists
+    })
   } catch (error) {
     console.error("Error in /checkconnection endpoint:", error)
     
