@@ -252,7 +252,7 @@ export const evolutionApi = {
   async disconnectInstance(instanceName: string): Promise<ApiResponse> {
     try {
       const response = await fetchFromApi(`/instance/logout/${instanceName}`, {
-        method: "POST",
+        method: "DELETE",
       })
 
       console.log("Resposta da desconexão:", response)
