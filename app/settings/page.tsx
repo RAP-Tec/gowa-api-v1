@@ -8,25 +8,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 export default function SettingsPage() {
   const [showLoginDialog, setShowLoginDialog] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    // Check authentication status
-    if (!isAuthenticated) {
+    // Only show login dialog if not authenticated and not loading
+    if (!isLoading && !isAuthenticated) {
       setShowLoginDialog(true);
+    } else if (isAuthenticated) {
+      setShowLoginDialog(false);
     }
-    setIsLoading(false);
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isLoading]);
 
   const handleLoginSuccess = () => {
     setShowLoginDialog(false);
-    // Force a re-render after successful login
-    window.location.reload();
   };
 
-  // If still loading, show minimal content
+  // If still loading, show loading indicator
   if (isLoading) {
     return <div className="container mx-auto py-8">Carregando...</div>;
   }
@@ -46,17 +44,19 @@ export default function SettingsPage() {
               <div className="space-y-4">
                 <div>
                   <h3 className="text-lg font-medium">URL da API Evolution</h3>
-                  <p className="text-sm text-muted-foreground">{process.env.NEXT_PUBLIC_EVOLUTION_API_URL || "Não configurado"}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {process.env.NEXT_PUBLIC_EVOLUTION_API_URL || "https://kolek.gowa.com.br"}
+                  </p>
                 </div>
                 <div>
                   <h3 className="text-lg font-medium">Chave de Autenticação</h3>
                   <p className="text-sm text-muted-foreground">
-                    {process.env.AUTH_KEY ? "Configurado" : "Não configurado"}
+                    Configurado
                   </p>
                 </div>
                 <div>
                   <h3 className="text-lg font-medium">Usuário Administrador</h3>
-                  <p className="text-sm text-muted-foreground">{process.env.LOGIN_ADMIN || "Não configurado"}</p>
+                  <p className="text-sm text-muted-foreground">KoleK</p>
                 </div>
               </div>
             </CardContent>
@@ -71,10 +71,13 @@ export default function SettingsPage() {
       <LoginDialog 
         open={showLoginDialog} 
         onOpenChange={(open) => {
-          setShowLoginDialog(open);
-          // If dialog is closed without successful login, redirect to home
-          if (!open && !isAuthenticated) {
+          // Only allow closing if authenticated
+          if (!open && isAuthenticated) {
+            setShowLoginDialog(false);
+          } else if (!open && !isAuthenticated) {
             router.push('/');
+          } else {
+            setShowLoginDialog(open);
           }
         }}
         onLoginSuccess={handleLoginSuccess}
