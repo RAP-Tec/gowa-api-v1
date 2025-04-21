@@ -2,19 +2,13 @@ import { useState, useEffect } from 'react';
 
 export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState(true);
   
   // Check if user is already authenticated on mount
   useEffect(() => {
-    const checkAuth = () => {
-      const authStatus = sessionStorage.getItem('isAuthenticated');
-      if (authStatus === 'true') {
-        setIsAuthenticated(true);
-      }
-      setIsLoading(false);
-    };
-    
-    checkAuth();
+    const authStatus = sessionStorage.getItem('isAuthenticated');
+    if (authStatus === 'true') {
+      setIsAuthenticated(true);
+    }
   }, []);
   
   const login = async (username: string, password: string): Promise<boolean> => {
@@ -31,7 +25,6 @@ export function useAuth() {
       
       if (data.success) {
         setIsAuthenticated(true);
-        // Store auth in session storage
         sessionStorage.setItem('isAuthenticated', 'true');
         return true;
       }
@@ -48,5 +41,5 @@ export function useAuth() {
     sessionStorage.removeItem('isAuthenticated');
   };
   
-  return { isAuthenticated, isLoading, login, logout };
+  return { isAuthenticated, login, logout };
 }

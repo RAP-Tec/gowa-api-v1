@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -27,15 +27,8 @@ export function LoginDialog({ open, onOpenChange, onLoginSuccess }: LoginDialogP
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { login, isAuthenticated } = useAuth();
+  const { login } = useAuth();
   const router = useRouter();
-
-  // If already authenticated, close the dialog
-  useEffect(() => {
-    if (isAuthenticated && open) {
-      onLoginSuccess();
-    }
-  }, [isAuthenticated, open, onLoginSuccess]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,10 +39,7 @@ export function LoginDialog({ open, onOpenChange, onLoginSuccess }: LoginDialogP
       const success = await login(username, password);
       
       if (success) {
-        // Wait a moment before triggering success callback
-        setTimeout(() => {
-          onLoginSuccess();
-        }, 500);
+        onLoginSuccess();
       } else {
         setError("Credenciais inválidas. Por favor, tente novamente.");
       }
@@ -62,18 +52,12 @@ export function LoginDialog({ open, onOpenChange, onLoginSuccess }: LoginDialogP
   };
 
   return (
-    <Dialog 
-      open={open} 
-      onOpenChange={(newOpen) => {
-        // Prevent closing the dialog by clicking outside if not authenticated
-        if (!newOpen && !isAuthenticated) {
-          // Allow the parent component to handle this
-          onOpenChange(newOpen);
-        } else if (isAuthenticated) {
-          onOpenChange(false);
-        }
-      }}
-    >
+    <Dialog open={open} onOpenChange={(open) => {
+      // Prevent closing the dialog by clicking outside if not authenticated
+      if (!open) {
+        onOpenChange(open);
+      }
+    }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Acesso Restrito</DialogTitle>
