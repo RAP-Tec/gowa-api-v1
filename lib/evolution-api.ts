@@ -281,7 +281,7 @@ export const evolutionApi = {
 
       return {
         success: true,
-        message: "Instância deletada com sucesso",
+        message: "Instance deleted successfully",
       }
     } catch (error) {
       console.error("Erro ao deletar instância:", error)
