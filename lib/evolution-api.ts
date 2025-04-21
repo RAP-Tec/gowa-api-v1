@@ -259,7 +259,7 @@ export const evolutionApi = {
 
       return {
         success: true,
-        message: "Instância desconectada com sucesso",
+        message: "Instance disconnected successfully",
       }
     } catch (error) {
       console.error("Erro ao desconectar instância:", error)
