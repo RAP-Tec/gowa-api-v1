@@ -145,25 +145,45 @@ export const evolutionApi = {
       }
   
       console.log("Payload para criação de instância:", JSON.stringify(payload))
-  
-      const response = await fetchFromApi("/instance/create", {
+
+      // Tipagem explícita da resposta esperada da API
+      const response = await fetchFromApi<{
+        instance: {
+          instanceName: string
+          instanceId: string
+          status: string
+        }
+        hash: string
+        qrcode?: {
+          pairingCode?: string
+          code?: string
+          base64?: string
+        }
+        // Adicione outros campos esperados se necessário
+      }>("/instance/create", {
         method: "POST",
         body: JSON.stringify(payload),
       })
-  
+
       console.log("Resposta da criação de instância:", response)
-  
+
+      // Verifica se a resposta contém os dados esperados
+      if (!response || !response.instance || !response.instance.instanceId || !response.hash) {
+        console.error("Resposta da API /instance/create inválida:", response);
+        throw new Error("Resposta inválida da API ao criar instância.");
+      }
+
       return {
         success: true,
         message: "Device instance created successfully",
+        version: '2.2.3.4', // Movido para fora do data
         steps: "Send the QR Code or pairing Code to the customer, and ask them to read it within 30 seconds",
         data: {
-          version: '2.2.3.4', // Adicionado campo version
-          instanceName,
-          instanceId: instanceName,
+          instanceName: response.instance.instanceName,
+          instanceId: response.instance.instanceId, // Corrigido para pegar o instanceId da resposta
           number: number || null,
-          createdAt: response.createdAt || response.data?.createdAt,
-          token: response.token || response.data?.token
+          createdAt: new Date().toISOString(), // Gerar data/hora atual
+          token: response.hash // Corrigido para pegar o hash como token
         }
       }
     } catch (error) {
