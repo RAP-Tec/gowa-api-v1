@@ -38,6 +38,8 @@ export async function POST(request: NextRequest) {
         ...result,
         data: {
           ...result.data,
+          createdAt: result.data?.createdAt,
+          token: result.data?.token,
           qrcode: qrResult.success ? qrResult.data?.qrcode : null,
           pairingCode: qrResult.success ? qrResult.data?.pairingCode : null
         }
