@@ -249,13 +249,15 @@ export const evolutionApi = {
         pairingCode = response.pairingCode
       } else if (response.data && response.data.pairingCode) {
         pairingCode = response.data.pairingCode
+      } else {
+        pairingCode = "To use the pairingCode, disconnect from the API and request the connection via Phone number or Pairing Code on the main WhatsApp device"
       }
 
       return {
         success: true,
         data: {
+          qrcode: qrcode,
           pairingCode: pairingCode,
-          qrcode: qrcode,          
         },
       }
     } catch (error) {
