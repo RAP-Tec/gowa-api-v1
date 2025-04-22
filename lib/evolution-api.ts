@@ -176,7 +176,7 @@ export const evolutionApi = {
         }
       }>("/instance/create", {
         method: "POST",
-        body: JSON.stringify(/* payload */),
+        body: JSON.stringify(payload), // <-- Correção: Descomentar 'payload'
       })
 
       console.log("Resposta da criação de instância:", response)
