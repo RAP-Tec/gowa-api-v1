@@ -319,7 +319,7 @@ export const evolutionApi = {
         error: error instanceof Error ? error.message : "Unknown error",
       }
     }
-  },
+  }, // <--- Vírgula adicionada/confirmada
 
   // Nova função para desconectar pelo número
   async disconnectDeviceByNumber(number: string): Promise<ApiResponse> {
@@ -347,7 +347,7 @@ export const evolutionApi = {
         error: error instanceof Error ? error.message : "Unknown error during disconnection by number",
       }
     }
-  },
+  }, // <--- Vírgula adicionada/confirmada
 
   // Deletar instância
   async deleteInstance(instanceName: string): Promise<ApiResponse> {
@@ -369,43 +369,73 @@ export const evolutionApi = {
         error: error instanceof Error ? error.message : "Unknown error",
       }
     }
-  },
+  }, // <--- Vírgula adicionada
 
-  // Obter detalhes da instância
-  async getInstanceDetails(instanceName: string): Promise<{ exists: boolean; number?: string; status?: string }> {
+  // Função para deletar uma instância pelo número do dispositivo (Removida a duplicata anterior)
+  async deleteDeviceByNumber(number: string): Promise<ApiResponse> {
+    try {
+      console.log(`Tentando deletar dispositivo com número: ${number}`)
+      // 1. Encontrar a instância pelo número
+      const instanceDetails = await this.getInstanceDetailsByNumber(number)
+
+      if (!instanceDetails.exists || !instanceDetails.instanceName) {
+        console.log(`Nenhuma instância encontrada para o número: ${number}`)
+        return {
+          success: false,
+          error: `Device with number ${number} not found.`,
+        }
+      }
+
+      console.log(`Instância encontrada: ${instanceDetails.instanceName}. Deletando...`)
+      // 2. Chamar a função de exclusão existente com o nome da instância
+      return await this.deleteInstance(instanceDetails.instanceName)
+
+    } catch (error) {
+      console.error(`Erro ao deletar dispositivo pelo número ${number}:`, error)
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error during deletion by number",
+      }
+    }
+  }, // <--- Vírgula adicionada
+
+  // Função para obter detalhes de uma instância específica
+  async getInstanceDetails(instanceName: string): Promise<{ exists: boolean; instance?: Instance; number?: string | null; status?: string }> { // Ajustado tipo de retorno para incluir number e status
     try {
       const response = await this.listInstances();
-      
+
       if (response.success && response.data) {
         const instance = response.data.find(
           (inst) => inst.instanceName.toLowerCase() === instanceName.toLowerCase()
         );
-        
+
         if (instance) {
+          // Retornar a instância completa ou os detalhes necessários
           return {
             exists: true,
-            number: instance.number,
+            instance: instance, // Retorna a instância completa
+            number: instance.number || null, // Garante que number seja string ou null
             status: instance.status
           };
         }
       }
-      
+
       return { exists: false };
     } catch (error) {
       console.error("Erro ao obter detalhes da instância:", error);
       return { exists: false };
     }
-  },
-  
+  }, // <--- Vírgula adicionada
+
   // Obter detalhes da instância pelo número
   async getInstanceDetailsByNumber(number: string): Promise<{ exists: boolean; instanceName?: string; status?: string }> {
     try {
       const response = await this.listInstances();
-      
+
       if (response.success && response.data) {
         // Normalize the number by removing any non-digit characters
         const normalizedSearchNumber = number.replace(/\D/g, '');
-        
+
         const instance = response.data.find(
           (inst) => {
             // If the instance has a number, normalize it and compare
@@ -416,7 +446,7 @@ export const evolutionApi = {
             return false;
           }
         );
-        
+
         if (instance) {
           return {
             exists: true,
@@ -425,13 +455,13 @@ export const evolutionApi = {
           };
         }
       }
-      
+
       return { exists: false };
     } catch (error) {
       console.error("Erro ao obter detalhes da instância pelo número:", error);
       return { exists: false };
     }
-  }
+  } // <--- SEM vírgula aqui, pois é a última função no objeto
 }
 
 // Função auxiliar para mapear o status da API para o formato esperado pelo frontend
