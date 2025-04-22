@@ -299,7 +299,7 @@ export const evolutionApi = {
     }
   },
 
-  // Desconectar instância
+  // Desconectar instância (logout)
   async disconnectInstance(instanceName: string): Promise<ApiResponse> {
     try {
       const response = await fetchFromApi(`/instance/logout/${instanceName}`, {
@@ -317,6 +317,34 @@ export const evolutionApi = {
       return {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
+      }
+    }
+  },
+
+  // Nova função para desconectar pelo número
+  async disconnectDeviceByNumber(number: string): Promise<ApiResponse> {
+    try {
+      console.log(`Tentando desconectar dispositivo com número: ${number}`)
+      // 1. Encontrar a instância pelo número
+      const instanceDetails = await this.getInstanceDetailsByNumber(number)
+
+      if (!instanceDetails.exists || !instanceDetails.instanceName) {
+        console.log(`Nenhuma instância encontrada para o número: ${number}`)
+        return {
+          success: false,
+          error: `Device with number ${number} not found.`,
+        }
+      }
+
+      console.log(`Instância encontrada: ${instanceDetails.instanceName}. Desconectando...`)
+      // 2. Chamar a função de desconexão existente com o nome da instância
+      return await this.disconnectInstance(instanceDetails.instanceName)
+
+    } catch (error) {
+      console.error(`Erro ao desconectar dispositivo pelo número ${number}:`, error)
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error during disconnection by number",
       }
     }
   },
