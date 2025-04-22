@@ -18,7 +18,7 @@ export async function listInstances(): Promise<ApiResponse<Instance[]>> {
     console.error("Erro ao listar instâncias:", error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Erro desconhecido",
+      error: error instanceof Error ? error.message : "Unknown error",
     }
   }
 }
@@ -30,7 +30,7 @@ export async function createInstance(instanceName: string, number?: string): Pro
     if (!/^[a-z0-9-]+$/.test(instanceName)) {
       return {
         success: false,
-        error: "Nome da instância deve conter apenas letras minúsculas, números e hífens",
+        error: "instanceName must contain only lowercase letters, numbers and hyphens",
       }
     }
 
@@ -38,7 +38,7 @@ export async function createInstance(instanceName: string, number?: string): Pro
     if (number && !/^\d+$/.test(number)) {
       return {
         success: false,
-        error: "Número de telefone deve conter apenas dígitos",
+        error: "Phone number must contain only numbers",
       }
     }
 
@@ -47,7 +47,7 @@ export async function createInstance(instanceName: string, number?: string): Pro
     console.error("Erro ao criar instância:", error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Erro desconhecido",
+      error: error instanceof Error ? error.message : "Unknown error",
     }
   }
 }
@@ -62,7 +62,7 @@ export async function getInstanceQrCode(
     console.error("Erro ao obter QR Code:", error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Erro desconhecido",
+      error: error instanceof Error ? error.message : "Unknown error",
     }
   }
 }
@@ -75,7 +75,7 @@ export async function disconnectInstance(instanceName: string): Promise<ApiRespo
     console.error("Erro ao desconectar instância:", error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Erro desconhecido",
+      error: error instanceof Error ? error.message : "Unknown error",
     }
   }
 }
@@ -88,7 +88,7 @@ export async function deleteInstance(instanceIdOrName: string): Promise<ApiRespo
     console.error("Erro ao deletar instância:", error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Erro desconhecido",
+      error: error instanceof Error ? error.message : "Unknown error",
     }
   }
 }

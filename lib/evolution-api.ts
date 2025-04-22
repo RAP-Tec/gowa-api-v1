@@ -115,7 +115,7 @@ export const evolutionApi = {
       console.error("Erro ao listar instâncias:", error)
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Erro desconhecido",
+        error: error instanceof Error ? error.message : "Unknown error",
       }
     }
   },
@@ -144,7 +144,7 @@ export const evolutionApi = {
       if (exists) {
         return {
           success: false,
-          error: "Uma instância com este nome já existe",
+          error: "An instance with this name already exists",
         }
       }
   
@@ -184,14 +184,14 @@ export const evolutionApi = {
       // Verifica se a resposta contém os dados esperados
       if (!response || !response.instance || !response.instance.instanceId || !response.hash) {
         console.error("Resposta da API /instance/create inválida:", response);
-        throw new Error("Resposta inválida da API ao criar instância.");
+        throw new Error("Invalid API response when creating instance");
       }
 
       return {
         success: true,
-        message: "Device instance created successfully",
+        message: "Device Instance created successfully",
         version: '2.2.3.4',
-        steps: "Send the QR Code or pairing Code to the customer, and ask them to read it within 30 seconds",
+        steps: "Send the QR Code or Pairing Code to the customer and ask them to read it within 30 seconds",
         data: {
           instanceName: response.instance.instanceName,
           instanceId: response.instance.instanceId, // Usar o instanceId retornado
@@ -207,7 +207,7 @@ export const evolutionApi = {
       console.error("Erro ao criar instância:", error)
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Erro desconhecido",
+        error: error instanceof Error ? error.message : "Unknown error",
       }
     }
   },
@@ -219,7 +219,7 @@ export const evolutionApi = {
     try {
       const response = await fetchFromApi<any>(`/instance/connect/${instanceName}`)
 
-      console.log("Resposta do QR Code:", JSON.stringify(response, null, 2))
+     // console.log("Resposta do QR Code:", JSON.stringify(response, null, 2))
 
       let qrcode = null
       let pairingCode = null
@@ -251,7 +251,7 @@ export const evolutionApi = {
       console.error("Erro ao obter QR Code:", error)
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Erro desconhecido",
+        error: error instanceof Error ? error.message : "Unknown error",
       }
     }
   },
@@ -261,7 +261,7 @@ export const evolutionApi = {
     try {
       const response = await fetchFromApi<any>(`/instance/connectionState/${instanceName}`)
 
-      console.log("Resposta do status da instância:", JSON.stringify(response, null, 2))
+   //   console.log("Resposta do status da instância:", JSON.stringify(response, null, 2))
 
       let status = "disconnected"
 
@@ -283,7 +283,7 @@ export const evolutionApi = {
       console.error("Erro ao verificar status da instância:", error)
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Erro desconhecido",
+        error: error instanceof Error ? error.message : "Unknown error",
       }
     }
   },
@@ -299,13 +299,13 @@ export const evolutionApi = {
 
       return {
         success: true,
-        message: "Instance disconnected successfully",
+        message: "Device Instance disconnected successfully",
       }
     } catch (error) {
       console.error("Erro ao desconectar instância:", error)
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Erro desconhecido",
+        error: error instanceof Error ? error.message : "Unknown error",
       }
     }
   },
@@ -321,13 +321,13 @@ export const evolutionApi = {
 
       return {
         success: true,
-        message: "Instance deleted successfully",
+        message: "Device Instance deleted successfully",
       }
     } catch (error) {
       console.error("Erro ao deletar instância:", error)
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Erro desconhecido",
+        error: error instanceof Error ? error.message : "Unknown error",
       }
     }
   },
