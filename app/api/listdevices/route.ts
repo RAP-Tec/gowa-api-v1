@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { evolutionApi } from "@/lib/evolution-api"
 
 // Chaves de autenticação
-const AUTH_KEY = process.env.AUTH_KEY || "kfrngOCiD8FbpoRrjRe9vagrVEYeqc1B0eEWxsNdieWjaRPHSM"
+const AUTH_KEY = process.env.AUTH_KEY // Carrega a chave AUTH_KEY do .env
 const GOWA_API_KEY = process.env.GOWA_API_KEY // Carrega a chave da API GOWA do .env
 
 // Handle POST requests para listar devices/instances
@@ -13,13 +13,13 @@ export async function POST(request: NextRequest) {
     if (!GOWA_API_KEY) {
         console.error("GOWA_API_KEY não está definida no ambiente.")
         return NextResponse.json(
-            { success: false, error: "Erro de configuração interna do servidor." },
+            { success: false, error: "API KEY configuration error" },
             { status: 500 }
         )
     }
     if (!apiKeyFromHeader || apiKeyFromHeader !== GOWA_API_KEY) {
       return NextResponse.json(
-        { success: false, error: "Unauthorized: Invalid API Key" },
+        { success: false, error: "Unauthorized: Invalid API Key (apikey)" },
         { status: 401 }
       )
     }
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     if (!body.authkey || body.authkey !== AUTH_KEY) {
       return NextResponse.json(
-        { success: false, error: "Unauthorized: Invalid authentication key" },
+        { success: false, error: "Unauthorized: Invalid authentication key (authkey)" },
         { status: 401 }
       )
     }
