@@ -13,6 +13,15 @@ interface Instance {
   instanceId?: string
   status: "connected" | "disconnected" | "connecting"
   number?: string
+  // Novos campos adicionados
+  ownerJid?: string
+  profileName?: string
+  profilePicUrl?: string
+  token?: string // Assumindo que 'token' vem da API, se for o 'hash' da criação, já está em createInstance
+  disconnectionReasonCode?: string
+  disconnectionObject?: any // Pode ser um objeto com detalhes
+  disconnectionAt?: string // Ou Date? Depende do formato da API
+  createdAt?: string // Ou Date? Depende do formato da API
 }
 
 // URL base da API Evolution
@@ -56,41 +65,45 @@ export const evolutionApi = {
   async listInstances(): Promise<ApiResponse<Instance[]>> {
     try {
       const response = await fetchFromApi<any>("/instance/fetchInstances")
-      console.log("Resposta da API:", JSON.stringify(response, null, 2))
+      console.log("Resposta da API /instance/fetchInstances:", JSON.stringify(response, null, 2)) // Log detalhado
 
       let instances: Instance[] = []
 
+      // Função auxiliar para mapear um item da API para nossa interface Instance
+      const mapApiItemToInstance = (item: any, key?: string): Instance => ({
+        instanceName: item.instanceName || item.name || key || "unknown",
+        instanceId: item.instanceId || item.id || item.instanceName || item.name || key || "unknown",
+        status: mapStatusFromApi(item.status || item.connectionStatus || "disconnected"),
+        number: item.number || undefined,
+        // Mapeamento dos novos campos
+        ownerJid: item.owner || item.ownerJid || undefined,
+        profileName: item.profileName || undefined,
+        profilePicUrl: item.profilePictureUrl || item.profilePicUrl || undefined,
+        token: item.token || item.apikey || undefined, // Verificar qual campo a API retorna para o token
+        disconnectionReasonCode: item.disconnectionReason || item.disconnectionReasonCode || undefined,
+        disconnectionObject: item.disconnectionObject || undefined, // Ajustar se a API retornar um objeto específico
+        disconnectionAt: item.disconnectedAt || item.disconnectionAt || undefined, // Ajustar formato se necessário
+        createdAt: item.createdAt || undefined, // Ajustar formato se necessário
+      });
+
       // Verificar se a resposta é um array (formato observado nos logs)
       if (Array.isArray(response)) {
-        instances = response.map((item: any) => ({
-          instanceName: item.name || "unknown",
-          instanceId: item.id || item.name || "unknown",
-          status: mapStatusFromApi(item.connectionStatus || "disconnected"),
-          number: item.number || undefined,
-        }))
+         // Adaptação para o formato [{ instance: {...} }] que parece ser comum
+         if (response.length > 0 && response[0].instance) {
+            instances = response.map((entry: any) => mapApiItemToInstance(entry.instance));
+         } else {
+            // Mapeamento direto se for um array de instâncias
+            instances = response.map((item: any) => mapApiItemToInstance(item));
+         }
       }
-      // Verificar outros formatos possíveis
-      else if (response.instances && Array.isArray(response.instances)) {
-        instances = response.instances.map((item: any) => ({
-          instanceName: item.instance?.instanceName || item.instance?.name || "unknown",
-          instanceId:
-            item.instance?.instanceId ||
-            item.instance?.id ||
-            item.instance?.instanceName ||
-            item.instance?.name ||
-            "unknown",
-          status: mapStatusFromApi(item.instance?.status || item.instance?.connectionStatus || "disconnected"),
-          number: item.instance?.number || undefined,
-        }))
+      // Verificar outros formatos possíveis (como o de /instance/create)
+      else if (response.instance && typeof response.instance === 'object') {
+         // Se a resposta for similar à de /instance/create, mapeia o objeto 'instance'
+         instances = [mapApiItemToInstance(response.instance)];
       }
       // Formato de objeto com chaves como nomes de instância
       else if (typeof response === "object" && response !== null) {
-        instances = Object.entries(response).map(([key, value]: [string, any]) => ({
-          instanceName: key,
-          instanceId: key,
-          status: mapStatusFromApi(value.status || value.connectionStatus || "disconnected"),
-          number: value.number || undefined,
-        }))
+        instances = Object.entries(response).map(([key, value]: [string, any]) => mapApiItemToInstance(value, key));
       }
 
       console.log("Instâncias mapeadas:", instances)
@@ -150,19 +163,20 @@ export const evolutionApi = {
       const response = await fetchFromApi<{
         instance: {
           instanceName: string
-          instanceId: string
+          instanceId: string // Esperamos instanceId aqui
           status: string
+          owner?: string // Adicionar campos que podem vir na criação
+          createdAt?: string // Adicionar campos que podem vir na criação
         }
-        hash: string
+        hash: string // Este é o token/apikey da instância
         qrcode?: {
           pairingCode?: string
           code?: string
           base64?: string
         }
-        // Adicione outros campos esperados se necessário
       }>("/instance/create", {
         method: "POST",
-        body: JSON.stringify(payload),
+        body: JSON.stringify(/* payload */),
       })
 
       console.log("Resposta da criação de instância:", response)
@@ -176,14 +190,17 @@ export const evolutionApi = {
       return {
         success: true,
         message: "Device instance created successfully",
-        version: '2.2.3.4', // Movido para fora do data
+        version: '2.2.3.4',
         steps: "Send the QR Code or pairing Code to the customer, and ask them to read it within 30 seconds",
         data: {
           instanceName: response.instance.instanceName,
-          instanceId: response.instance.instanceId, // Corrigido para pegar o instanceId da resposta
+          instanceId: response.instance.instanceId, // Usar o instanceId retornado
           number: number || null,
-          createdAt: new Date().toISOString(), // Gerar data/hora atual
-          token: response.hash // Corrigido para pegar o hash como token
+          createdAt: response.instance.createdAt || new Date().toISOString(), // Usar o da API se existir
+          token: response.hash, // O token é o hash retornado pela API de criação
+          ownerJid: response.instance.owner, // Adicionar se a API retornar
+          // Outros campos de 'Instance' podem não estar disponíveis imediatamente na criação
+          status: mapStatusFromApi(response.instance.status || "connecting"), // Status inicial
         }
       }
     } catch (error) {
