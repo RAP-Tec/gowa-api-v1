@@ -254,8 +254,8 @@ export const evolutionApi = {
       return {
         success: true,
         data: {
-          qrcode: qrcode,
           pairingCode: pairingCode,
+          qrcode: qrcode,          
         },
       }
     } catch (error) {
