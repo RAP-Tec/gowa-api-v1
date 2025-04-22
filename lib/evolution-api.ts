@@ -158,6 +158,7 @@ export const evolutionApi = {
         message: "Device instance created successfully",
         steps: "Send the QR Code or pairing Code to the customer, and ask them to read it within 30 seconds",
         data: {
+          version: '2.2.3.4', // Adicionado campo version
           instanceName,
           instanceId: instanceName,
           number: number || null,

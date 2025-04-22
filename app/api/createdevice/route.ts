@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     // Call the Evolution API to create a new instance
     const result = await evolutionApi.createInstance(body.instanceName, body.number)
     
-    if (result.success) {
+    if (result.success && result.data) { // Verificação adicional para result.data
       // Get QR code for the newly created instance
       const qrResult = await evolutionApi.getQrCode(body.instanceName)
       
@@ -37,26 +37,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         ...result,
         data: {
-          ...result.data,
-          createdAt: result.data?.createdAt,
-          token: result.data?.token,
+          version: '2.2.3.4', // Adicionado campo version
+          ...result.data, // Mantém os dados originais de createInstance
           qrcode: qrResult.success ? qrResult.data?.qrcode : null,
           pairingCode: qrResult.success ? qrResult.data?.pairingCode : null
         }
       })
     }
     
-    // Return the original result if instance creation failed
+    // Return the original result if instance creation failed or data is missing
+    // Se a criação falhou, o result já contém { success: false, error: ... }
+    // Se result.success for true mas result.data for undefined (improvável mas seguro verificar),
+    // retornamos o result original que pode conter a mensagem de sucesso mas sem dados.
     return NextResponse.json(result)
     
-    // Return the response with instanceName and number
-    return NextResponse.json({
-      ...result,
-      data: {
-        instanceName: body.instanceName,
-        number: body.number || null
-      }
-    })
+    // Código inalcançável removido daqui
+    
   } catch (error) {
     console.error("Error in /createdevice endpoint:", error)
     
