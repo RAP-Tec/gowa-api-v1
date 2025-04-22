@@ -16,8 +16,8 @@ interface Instance {
 }
 
 // URL base da API Evolution
-const API_BASE_URL = process.env.EVOLUTION_API_URL || "http://localhost:8080"
-const API_KEY = process.env.EVOLUTION_API_KEY || ""
+const API_BASE_URL = process.env.GOWA_API_URL || "http://localhost:8080"
+const API_KEY = process.env.GOWA_API_KEY || ""
 
 // Função auxiliar para fazer requisições à API
 async function fetchFromApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
