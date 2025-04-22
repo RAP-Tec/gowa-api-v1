@@ -159,8 +159,10 @@ export const evolutionApi = {
         steps: "Send the QR Code or pairing Code to the customer, and ask them to read it within 30 seconds",
         data: {
           instanceName,
-          instanceId: instanceName, // Adicionando instanceId (usando instanceName como valor padrão)
-          number: number || null
+          instanceId: instanceName,
+          number: number || null,
+          createdAt: response.createdAt || response.data?.createdAt,
+          token: response.token || response.data?.token
         }
       }
     } catch (error) {
