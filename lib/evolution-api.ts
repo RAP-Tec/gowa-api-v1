@@ -139,12 +139,23 @@ export const evolutionApi = {
   // Criar instância
   async createInstance(instanceName: string, number?: string): Promise<ApiResponse> {
     try {
-      // Verificar se a instância já existe
-      const exists = await this.instanceExists(instanceName)
-      if (exists) {
+      // Verificar se a instância já existe pelo nome
+      const existsByName = await this.instanceExists(instanceName)
+      if (existsByName) {
         return {
           success: false,
           error: "An instance with this name already exists",
+        }
+      }
+
+      // Verificar se o número já existe (se fornecido)
+      if (number) {
+        const existsByNumber = await this.getInstanceDetailsByNumber(number);
+        if (existsByNumber.exists) {
+          return {
+            success: false,
+            error: `An instance with the number ${number} already exists (Instance Name: ${existsByNumber.instanceName})`,
+          }
         }
       }
   
