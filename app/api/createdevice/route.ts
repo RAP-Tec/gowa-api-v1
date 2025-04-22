@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
         console.error("GOWA_API_KEY não está definida no ambiente.")
         // É importante não expor detalhes internos do erro ao cliente
         return NextResponse.json(
-            { success: false, error: "Gowa API Key is not defined in the environment" },
+            { success: false, error: "Gowa API Key is not defined in the environment" }, 
             { status: 500 }
         )
     }
@@ -27,12 +27,12 @@ export async function POST(request: NextRequest) {
 
     // 2. Validar Auth Key e instanceName do Body
     const body = await request.json()
-
+    
     // Validar authkey
     if (!AUTH_KEY) {
         console.error("AUTH_KEY não está definida no ambiente.")
         return NextResponse.json(
-            { success: false, error: "Gowa Auth Key is not defined in the environment" },
+            { success: false, error: "Gowa Auth Key is not defined in the environment" }, 
             { status: 500 }
         )
     }
@@ -60,40 +60,35 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Lê o parâmetro opcional qrcode do corpo da requisição. Se não for fornecido, assume true.
-    const qrcodeParam = body.qrcode === undefined ? true : Boolean(body.qrcode);
-
     // Se ambas as chaves e instanceName são válidos, prosseguir
     console.log("Autenticação bem-sucedida. Criando instância...")
-    // Call the Evolution API to create a new instance, passando o parâmetro qrcode
-    const result = await evolutionApi.createInstance(body.instanceName, body.number, qrcodeParam)
+    // Call the Evolution API to create a new instance
+    const result = await evolutionApi.createInstance(body.instanceName, body.number)
 
-    // Se a criação foi bem-sucedida E o qrcode foi solicitado (qrcodeParam === true)
-    // E a API *não* retornou o QR code diretamente na criação (verificar se result.data tem qrcode)
-    // então busca o QR code separadamente.
-    // Caso contrário, o QR code (ou a ausência dele) já está em result.data
-    if (result.success && result.data && qrcodeParam && !result.data.qrcode && !result.data.pairingCode) {
-      console.log("Buscando QR Code separadamente...")
+    if (result.success && result.data) { // Verificação adicional para result.data
+      // Get QR code for the newly created instance
       const qrResult = await evolutionApi.getQrCode(body.instanceName)
 
-      // Combina os resultados, adicionando o QR code obtido separadamente
+      // Combine the results
       return NextResponse.json({
-        ...result, // Mantém success, message, version, steps da criação
+        success: result.success,
+        message: result.message,
+        version: result.version, // Acessar a versão diretamente do resultado
+        steps: result.steps,
         data: {
-          ...result.data, // Mantém os dados originais de createInstance
+          ...result.data, // Mantém os dados originais de createInstance (instanceName, instanceId, number, createdAt, token)
           qrcode: qrResult.success ? qrResult.data?.qrcode : null,
           pairingCode: qrResult.success ? qrResult.data?.pairingCode : null
         }
       })
     }
-
-    // Se a criação falhou, ou se o qrcode não foi solicitado,
-    // ou se o qrcode já veio na resposta da criação, retorna o resultado original.
+    
+    // Return the original result if instance creation failed or data is missing
     return NextResponse.json(result)
-
+    
   } catch (error) {
     console.error("Error in /createdevice endpoint:", error)
-
+    
     // Trata erros de parsing do JSON ou outros erros inesperados
     let errorMessage = "Unknown error occurred"
     let errorStatus = 500
@@ -105,11 +100,11 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      {
-        success: false,
+      { 
+        success: false, 
         error: errorMessage
       },
-      { status: errorStatus }
+      { status: errorStatus } 
     )
   }
 }

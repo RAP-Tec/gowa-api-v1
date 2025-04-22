@@ -137,11 +137,7 @@ export const evolutionApi = {
   },
 
   // Criar instância
-  async createInstance(
-    instanceName: string,
-    number?: string,
-    qrcode: boolean = true // Adiciona o parâmetro opcional qrcode com valor padrão true
-  ): Promise<ApiResponse> {
+  async createInstance(instanceName: string, number?: string): Promise<ApiResponse> {
     try {
       // Verificar se a instância já existe pelo nome
       const existsByName = await this.instanceExists(instanceName)
@@ -168,10 +164,10 @@ export const evolutionApi = {
         instanceName,
         name: instanceName, // Adicionando campo name como backup
         integration: "WHATSAPP-BAILEYS", // Campo obrigatório
-        qrcode: qrcode, // Usa o valor do parâmetro qrcode
+        qrcode: true,
         ...(number && { number }),
       }
-
+  
       console.log("Payload para criação de instância:", JSON.stringify(payload))
 
       // Tipagem explícita da resposta esperada da API
@@ -202,31 +198,21 @@ export const evolutionApi = {
         throw new Error("Invalid API response when creating instance");
       }
 
-      // Prepara os dados de retorno
-      const returnData: any = {
-        instanceName: response.instance.instanceName,
-        instanceId: response.instance.instanceId,
-        number: number || null,
-        createdAt: response.instance.createdAt || new Date().toISOString(),
-        token: response.hash,
-        ownerJid: response.instance.owner,
-        status: mapStatusFromApi(response.instance.status || "connecting"),
-      };
-
-      // Adiciona qrcode e pairingCode apenas se qrcode for true na requisição
-      // e se a API os retornar na criação (o que pode não acontecer sempre)
-      if (qrcode && response.qrcode) {
-          returnData.qrcode = response.qrcode.code || response.qrcode.base64 || null;
-          returnData.pairingCode = response.qrcode.pairingCode || null;
-      }
-
-
       return {
         success: true,
         message: "Device Instance created successfully",
-        version: '2.2.3.4', // Considere tornar isso dinâmico se possível
-        steps: qrcode ? "Send the QR Code or Pairing Code to the customer and ask them to read it within 30 seconds" : "Instance created without requesting QR code.",
-        data: returnData
+        version: '2.2.3.4',
+        steps: "Send the QR Code or Pairing Code to the customer and ask them to read it within 30 seconds",
+        data: {
+          instanceName: response.instance.instanceName,
+          instanceId: response.instance.instanceId, // Usar o instanceId retornado
+          number: number || null,
+          createdAt: response.instance.createdAt || new Date().toISOString(), // Usar o da API se existir
+          token: response.hash, // O token é o hash retornado pela API de criação
+          ownerJid: response.instance.owner, // Adicionar se a API retornar
+          // Outros campos de 'Instance' podem não estar disponíveis imediatamente na criação
+          status: mapStatusFromApi(response.instance.status || "connecting"), // Status inicial
+        }
       }
     } catch (error) {
       console.error("Erro ao criar instância:", error)
