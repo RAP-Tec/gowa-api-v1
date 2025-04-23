@@ -201,7 +201,7 @@ export const evolutionApi = {
       return {
         success: true,
         message: "Device Instance created successfully",
-        version: '2.2.3.4',
+        version: '2.2.4.4',
         steps: "Send the QR Code or Pairing Code to the customer and ask them to read it within 30 seconds",
         data: {
           instanceName: response.instance.instanceName,

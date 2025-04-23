@@ -75,13 +75,13 @@ export async function POST(request: NextRequest) {
     if (qrResult.success) {
         return NextResponse.json({
             success: true,
-            message: `Connection details retrieved for device number ${body.number} (Instance: ${instanceDetails.instanceName})`,
+            message: `Connection information for device number ${body.number} (Instance: ${instanceDetails.instanceName}) Send the QR Code or Pairing Code to the customer and ask them to read it within 30 seconds`,
             data: qrResult.data // Contém qrcode, base64, pairingCode
         })
     } else {
         return NextResponse.json({
             success: false,
-            error: qrResult.error || `Failed to get connection details for instance ${instanceDetails.instanceName}`,
+            error: qrResult.error || `Failed to get data for device connection ${instanceDetails.instanceName}`,
         }, { status: 500 }) // Internal Server Error ou status apropriado do erro
     }
 

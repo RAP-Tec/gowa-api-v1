@@ -55,8 +55,19 @@ export async function POST(request: NextRequest) {
     // Chama a função getQrCode da evolution-api
     const qrResult = await evolutionApi.getQrCode(body.instanceName)
 
-    // Retorna o resultado da chamada getQrCode
-    return NextResponse.json(qrResult)
+    // 5. Retornar o resultado (QR Code/Pairing Code ou erro)
+    if (qrResult.success) {
+        return NextResponse.json({
+            success: true,
+            message: `Connection information for instance: ${body.instanceName} Send the QR Code or Pairing Code to the customer and ask them to read it within 30 seconds`,
+            data: qrResult.data // Contém qrcode, base64, pairingCode
+        })
+    } else {
+        return NextResponse.json({
+            success: false,
+            error: qrResult.error || `Failed to get data for instance connection ${body.instanceName}`,
+        }, { status: 500 }) // Internal Server Error ou status apropriado do erro
+    }
 
   } catch (error) {
     console.error("Error in /connectinstance endpoint:", error) // Atualiza a mensagem de erro

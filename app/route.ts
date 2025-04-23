@@ -5,10 +5,10 @@ export async function GET() {
     {
       status: 200,
       message: "Gowa Devices API Success",
-      version: "2.2.3.4",
+      version: "2.2.4.4",
       clientName: "gowa_kolek",
       manager: "http://kolek.gowa.com.br/manager",
-      documentation: "https://doc.gowa.com.br"
+      documentation: "https://www.postman.com/gowa-7081409/gowa-s-workspace"
     },
     { status: 200 }
   )

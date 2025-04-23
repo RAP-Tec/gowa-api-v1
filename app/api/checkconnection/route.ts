@@ -5,7 +5,7 @@ import { evolutionApi } from "@/lib/evolution-api"
 const AUTH_KEY = process.env.AUTH_KEY
 const GOWA_API_KEY = process.env.GOWA_API_KEY // Carrega a chave da API GOWA do .env
 
-// Handle POST requests to check if an instance exists
+// Handle POST requests para verificar a conexão de uma instância (por nome ou número)
 export async function POST(request: NextRequest) {
   try {
     // 1. Validar API Key do Header
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 2. Validar Auth Key e instanceName do Body
+    // 2. Validar Auth Key e parâmetros (instanceName ou number) do Body
     const body = await request.json()
 
     // Validar authkey
@@ -42,24 +42,66 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validar instanceName
-    if (!body.instanceName) {
+    // Validar instanceName ou number
+    const { instanceName, number } = body
+    if (!instanceName && !number) {
       return NextResponse.json(
-        { success: false, error: "Missing required parameter: instanceName" },
+        { success: false, error: "Missing required parameter: instanceName or number" },
         { status: 400 }
       )
     }
 
-    // Se ambas as chaves e instanceName são válidos, prosseguir
-    console.log("Autenticação bem-sucedida. Verificando conexão da instância...")
-    // Call the Evolution API to check if instance exists and get its details
-    const instanceDetails = await evolutionApi.getInstanceDetails(body.instanceName)
+    // Se ambas as chaves são válidas e pelo menos um parâmetro foi fornecido, prosseguir
+    console.log("Autenticação bem-sucedida. Verificando conexão...")
 
-    // Return the response
-    return NextResponse.json({
-      success: true,
-      data: instanceDetails
-    })
+    let instanceDetailsResponse: any; // Para armazenar a resposta final
+
+    // Prioriza instanceName se ambos forem fornecidos
+    if (instanceName) {
+      console.log(`Verificando conexão usando instanceName: ${instanceName}`)
+      // Chama a função para obter detalhes e status pelo nome
+      instanceDetailsResponse = await evolutionApi.getInstanceDetails(instanceName)
+      // A função getInstanceDetails já retorna { exists, instance, number, status }
+      if (!instanceDetailsResponse.exists) {
+        return NextResponse.json({
+            success: false,
+            error: `Instance with name ${instanceName} not found.`
+        }, { status: 404 })
+      }
+      // Retorna os detalhes obtidos
+      return NextResponse.json({
+        success: true,
+        data: instanceDetailsResponse // Contém exists, instance, number, status
+      })
+
+    } else if (number) {
+      console.log(`Verificando conexão usando number: ${number}`)
+      // 1. Encontrar a instância pelo número
+      const instanceLookup = await evolutionApi.getInstanceDetailsByNumber(number)
+
+      if (!instanceLookup.exists || !instanceLookup.instanceName) {
+        console.log(`Nenhuma instância encontrada para o número: ${number}`)
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Device with number ${number} not found.`,
+          },
+          { status: 404 } // Not Found
+        )
+      }
+
+      // 2. Se encontrada, verificar o status da conexão usando o instanceName
+      console.log(`Instância encontrada: ${instanceLookup.instanceName}. Verificando status...`)
+      const statusResult = await evolutionApi.checkInstanceStatus(instanceLookup.instanceName)
+
+      // Retorna o resultado da verificação de status
+      return NextResponse.json(statusResult) // Contém success e data: { status } ou error
+
+    }
+    // Este ponto não deve ser alcançado devido à validação anterior, mas por segurança:
+    return NextResponse.json({ success: false, error: "Invalid state" }, { status: 500 })
+
+
   } catch (error) {
     console.error("Error in /checkconnection endpoint:", error)
 
