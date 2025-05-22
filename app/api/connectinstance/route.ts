@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Se ambas as chaves e instanceName são válidos, prosseguir
-    console.log("Autenticação bem-sucedida. Obtendo QR Code para a instância...")
+//    console.log("Autenticação bem-sucedida. Obtendo QR Code para a instância...")
     // Chama a função getQrCode da evolution-api
     const qrResult = await evolutionApi.getQrCode(body.instanceName)
 

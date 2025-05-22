@@ -37,7 +37,7 @@ async function fetchFromApi<T>(endpoint: string, options: RequestInit = {}): Pro
     ...options.headers,
   }
 
-  console.log(`Fazendo requisição para: ${url}`)
+//  console.log(`Fazendo requisição para: ${url}`)
 
   const response = await fetch(url, {
     ...options,
@@ -65,7 +65,7 @@ export const evolutionApi = {
   async listInstances(): Promise<ApiResponse<Instance[]>> {
     try {
       const response = await fetchFromApi<any>("/instance/fetchInstances")
-      console.log("Resposta da API /instance/fetchInstances:", JSON.stringify(response, null, 2)) // Log detalhado
+//      console.log("Resposta da API /instance/fetchInstances:", JSON.stringify(response, null, 2)) // Log detalhado
 
       let instances: Instance[] = []
 
@@ -106,7 +106,7 @@ export const evolutionApi = {
         instances = Object.entries(response).map(([key, value]: [string, any]) => mapApiItemToInstance(value, key));
       }
 
-      console.log("Instâncias mapeadas:", instances)
+//      console.log("Instâncias mapeadas:", instances)
       return {
         success: true,
         data: instances,
@@ -168,7 +168,7 @@ export const evolutionApi = {
         ...(number && { number }),
       }
   
-      console.log("Payload para criação de instância:", JSON.stringify(payload))
+//      console.log("Payload para criação de instância:", JSON.stringify(payload))
 
       // Tipagem explícita da resposta esperada da API
       const response = await fetchFromApi<{
@@ -190,7 +190,7 @@ export const evolutionApi = {
         body: JSON.stringify(payload), // <-- Correção: Descomentar 'payload'
       })
 
-      console.log("Resposta da criação de instância:", response)
+//      console.log("Resposta da criação de instância:", response)
 
       // Verifica se a resposta contém os dados esperados
       if (!response || !response.instance || !response.instance.instanceId || !response.hash) {
@@ -308,7 +308,7 @@ export const evolutionApi = {
         method: "DELETE",
       })
 
-      console.log("Resposta da desconexão:", response)
+//      console.log("Resposta da desconexão:", response)
 
       return {
         success: true,
@@ -326,19 +326,19 @@ export const evolutionApi = {
   // Nova função para desconectar pelo número
   async disconnectDeviceByNumber(number: string): Promise<ApiResponse> {
     try {
-      console.log(`Tentando desconectar dispositivo com número: ${number}`)
+//      console.log(`Tentando desconectar dispositivo com número: ${number}`)
       // 1. Encontrar a instância pelo número
       const instanceDetails = await this.getInstanceDetailsByNumber(number)
 
       if (!instanceDetails.exists || !instanceDetails.instanceName) {
-        console.log(`Nenhuma instância encontrada para o número: ${number}`)
+//        console.log(`Nenhuma instância encontrada para o número: ${number}`)
         return {
           success: false,
           error: `Device with number ${number} not found.`,
         }
       }
 
-      console.log(`Instância encontrada: ${instanceDetails.instanceName}. Desconectando...`)
+//      console.log(`Instância encontrada: ${instanceDetails.instanceName}. Desconectando...`)
       // 2. Chamar a função de desconexão existente com o nome da instância
       return await this.disconnectInstance(instanceDetails.instanceName)
 
@@ -358,7 +358,7 @@ export const evolutionApi = {
         method: "DELETE",
       })
 
-      console.log("Resposta da exclusão:", response)
+//      console.log("Resposta da exclusão:", response)
 
       return {
         success: true,
@@ -376,19 +376,19 @@ export const evolutionApi = {
   // Função para deletar uma instância pelo número do dispositivo (Removida a duplicata anterior)
   async deleteDeviceByNumber(number: string): Promise<ApiResponse> {
     try {
-      console.log(`Tentando deletar dispositivo com número: ${number}`)
+//      console.log(`Tentando deletar dispositivo com número: ${number}`)
       // 1. Encontrar a instância pelo número
       const instanceDetails = await this.getInstanceDetailsByNumber(number)
 
       if (!instanceDetails.exists || !instanceDetails.instanceName) {
-        console.log(`Nenhuma instância encontrada para o número: ${number}`)
+//        console.log(`Nenhuma instância encontrada para o número: ${number}`)
         return {
           success: false,
           error: `Device with number ${number} not found.`,
         }
       }
 
-      console.log(`Instância encontrada: ${instanceDetails.instanceName}. Deletando...`)
+//      console.log(`Instância encontrada: ${instanceDetails.instanceName}. Deletando...`)
       // 2. Chamar a função de exclusão existente com o nome da instância
       return await this.deleteInstance(instanceDetails.instanceName)
 

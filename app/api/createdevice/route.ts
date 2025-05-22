@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Se ambas as chaves e instanceName são válidos, prosseguir
-    console.log("Autenticação bem-sucedida. Criando instância...")
+//    console.log("Autenticação bem-sucedida. Criando instância...")
     // Call the Evolution API to create a new instance
     const result = await evolutionApi.createInstance(body.instanceName, body.number)
 

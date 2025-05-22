@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Se ambas as chaves e number são válidos, prosseguir
-    console.log("Autenticação bem-sucedida. Verificando existência do dispositivo pelo número...")
+//    console.log("Autenticação bem-sucedida. Verificando existência do dispositivo pelo número...")
     // Call the Evolution API to check if instance exists by number and get its details
     const instanceDetails = await evolutionApi.getInstanceDetailsByNumber(body.number)
 

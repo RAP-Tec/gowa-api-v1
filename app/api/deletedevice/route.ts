@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Se ambas as chaves e number são válidos, prosseguir
-    console.log("Autenticação bem-sucedida. Deletando dispositivo pelo número...")
+//    console.log("Autenticação bem-sucedida. Deletando dispositivo pelo número...")
     // Call the Evolution API to delete the device by number
     const result = await evolutionApi.deleteDeviceByNumber(body.number)
 

@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Se ambas as chaves e number são válidos, prosseguir
-    console.log(`Autenticação bem-sucedida. Desconectando dispositivo com número: ${body.number}...`)
+//    console.log(`Autenticação bem-sucedida. Desconectando dispositivo com número: ${body.number}...`)
     // Call the Evolution API to disconnect the device by number
     // Note: We need to add a method in evolutionApi to handle this
     const result = await evolutionApi.disconnectDeviceByNumber(body.number)

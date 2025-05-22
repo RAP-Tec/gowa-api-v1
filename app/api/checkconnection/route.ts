@@ -52,13 +52,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Se ambas as chaves são válidas e pelo menos um parâmetro foi fornecido, prosseguir
-    console.log("Autenticação bem-sucedida. Verificando conexão...")
+//    console.log("Autenticação bem-sucedida. Verificando conexão...")
 
     let instanceDetailsResponse: any; // Para armazenar a resposta final
 
     // Prioriza instanceName se ambos forem fornecidos
     if (instanceName) {
-      console.log(`Verificando conexão usando instanceName: ${instanceName}`)
+//      console.log(`Verificando conexão usando instanceName: ${instanceName}`)
       // Chama a função para obter detalhes e status pelo nome
       instanceDetailsResponse = await evolutionApi.getInstanceDetails(instanceName)
       // A função getInstanceDetails já retorna { exists, instance, number, status }
@@ -75,12 +75,12 @@ export async function POST(request: NextRequest) {
       })
 
     } else if (number) {
-      console.log(`Verificando conexão usando number: ${number}`)
+//      console.log(`Verificando conexão usando number: ${number}`)
       // 1. Encontrar a instância pelo número
       const instanceLookup = await evolutionApi.getInstanceDetailsByNumber(number)
 
       if (!instanceLookup.exists || !instanceLookup.instanceName) {
-        console.log(`Nenhuma instância encontrada para o número: ${number}`)
+//        console.log(`Nenhuma instância encontrada para o número: ${number}`)
         return NextResponse.json(
           {
             success: false,
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
       }
 
       // 2. Se encontrada, verificar o status da conexão usando o instanceName
-      console.log(`Instância encontrada: ${instanceLookup.instanceName}. Verificando status...`)
+//      console.log(`Instância encontrada: ${instanceLookup.instanceName}. Verificando status...`)
       const statusResult = await evolutionApi.checkInstanceStatus(instanceLookup.instanceName)
 
       // Retorna o resultado da verificação de status

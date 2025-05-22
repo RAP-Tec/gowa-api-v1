@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Se ambas as chaves e instanceName são válidos, prosseguir
-    console.log("Autenticação bem-sucedida. Desconectando instância...")
+//    console.log("Autenticação bem-sucedida. Desconectando instância...")
     // Call the Evolution API to disconnect the instance
     const result = await evolutionApi.disconnectInstance(body.instanceName)
 

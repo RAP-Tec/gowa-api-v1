@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Se ambas as chaves e instanceName são válidos, prosseguir
-    console.log("Autenticação bem-sucedida. Verificando existência da instância...")
+//    console.log("Autenticação bem-sucedida. Verificando existência da instância...")
     // Call the Evolution API to check if instance exists and get its details
     const instanceDetails = await evolutionApi.getInstanceDetails(body.instanceName)
 

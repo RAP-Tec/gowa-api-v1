@@ -51,13 +51,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Se ambas as chaves e number são válidos, prosseguir
-    console.log(`Autenticação bem-sucedida. Tentando obter QR Code para conectar dispositivo com número: ${body.number}`)
+//    console.log(`Autenticação bem-sucedida. Tentando obter QR Code para conectar dispositivo com número: ${body.number}`)
 
     // 3. Encontrar a instância pelo número
     const instanceDetails = await evolutionApi.getInstanceDetailsByNumber(body.number)
 
     if (!instanceDetails.exists || !instanceDetails.instanceName) {
-      console.log(`Nenhuma instância encontrada para o número: ${body.number}`)
+//      console.log(`Nenhuma instância encontrada para o número: ${body.number}`)
       return NextResponse.json(
         {
           success: false,
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Chamar a função para obter o QR Code/Pairing Code usando o instanceName encontrado
-    console.log(`Instância encontrada: ${instanceDetails.instanceName}. Obtendo QR Code/Pairing Code...`)
+//    console.log(`Instância encontrada: ${instanceDetails.instanceName}. Obtendo QR Code/Pairing Code...`)
     const qrResult = await evolutionApi.getQrCode(instanceDetails.instanceName)
 
     // 5. Retornar o resultado (QR Code/Pairing Code ou erro)

@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Se ambas as chaves e instanceName são válidos, prosseguir
-    console.log("Autenticação bem-sucedida. Deletando instância...")
+//    console.log("Autenticação bem-sucedida. Deletando instância...")
     // Call the Evolution API to delete the instance
     const result = await evolutionApi.deleteInstance(body.instanceName)
 

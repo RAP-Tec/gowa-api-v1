@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Se ambas as chaves são válidas, prosseguir
-    console.log("Autenticação bem-sucedida. Listando instâncias...")
+//    console.log("Autenticação bem-sucedida. Listando instâncias...")
     const result = await evolutionApi.listInstances() // Chama a função para listar instâncias
 
     // Retorna o resultado da API Evolution
