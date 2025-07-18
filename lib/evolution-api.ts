@@ -29,11 +29,11 @@ const API_BASE_URL = process.env.GOWA_API_URL || "http://localhost:8080"
 const API_KEY = process.env.GOWA_API_KEY || ""
 
 // Função auxiliar para fazer requisições à API
-async function fetchFromApi<T>(endpoint: string, options: RequestInit = {}, apiKey?: string): Promise<T> {
+async function fetchFromApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`
   const headers = {
     "Content-Type": "application/json",
-    apikey: apiKey || API_KEY, // Usa a API key passada como parâmetro ou a do environment
+    apikey: API_KEY,
     ...options.headers,
   }
 
@@ -62,9 +62,9 @@ async function fetchFromApi<T>(endpoint: string, options: RequestInit = {}, apiK
 // Objeto com métodos para interagir com a API Evolution
 export const evolutionApi = {
   // Listar instâncias
-  async listInstances(apiKey?: string): Promise<ApiResponse<Instance[]>> {
+  async listInstances(): Promise<ApiResponse<Instance[]>> {
     try {
-      const response = await fetchFromApi<any>("/instance/fetchInstances", {}, apiKey)
+      const response = await fetchFromApi<any>("/instance/fetchInstances")
 //      console.log("Resposta da API /instance/fetchInstances:", JSON.stringify(response, null, 2)) // Log detalhado
 
       let instances: Instance[] = []
@@ -121,9 +121,9 @@ export const evolutionApi = {
   },
 
   // Verificar se uma instância já existe
-  async instanceExists(instanceName: string, apiKey?: string): Promise<boolean> {
+  async instanceExists(instanceName: string): Promise<boolean> {
     try {
-      const response = await this.listInstances(apiKey)
+      const response = await this.listInstances()
 
       if (response.success && response.data) {
         return response.data.some((instance) => instance.instanceName.toLowerCase() === instanceName.toLowerCase())
@@ -137,10 +137,27 @@ export const evolutionApi = {
   },
 
   // Criar instância
-  async createInstance(instanceName: string, number?: string, apiKey?: string): Promise<ApiResponse> {
+  async createInstance(
+    instanceName: string, 
+    number?: string, 
+    options?: {
+      rejectCall?: boolean,
+      msgCall?: string,
+      groupsIgnore?: boolean,
+      alwaysOnline?: boolean,
+      readMessages?: boolean,
+      readStatus?: boolean,
+      syncFullHistory?: boolean,
+      proxyHost?: string,
+      proxyPort?: string,
+      proxyProtocol?: string,
+      proxyUsername?: string,
+      proxyPassword?: string
+    }
+  ): Promise<ApiResponse> {
     try {
       // Verificar se a instância já existe pelo nome
-      const existsByName = await this.instanceExists(instanceName, apiKey)
+      const existsByName = await this.instanceExists(instanceName)
       if (existsByName) {
         return {
           success: false,
@@ -150,7 +167,7 @@ export const evolutionApi = {
 
       // Verificar se o número já existe (se fornecido)
       if (number) {
-        const existsByNumber = await this.getInstanceDetailsByNumber(number, apiKey);
+        const existsByNumber = await this.getInstanceDetailsByNumber(number);
         if (existsByNumber.exists) {
           return {
             success: false,
@@ -159,13 +176,26 @@ export const evolutionApi = {
         }
       }
   
-      // Payload mínimo com apenas os campos essenciais
+      // Payload com campos essenciais e opcionais
       const payload = {
         instanceName,
         name: instanceName, // Adicionando campo name como backup
         integration: "WHATSAPP-BAILEYS", // Campo obrigatório
         qrcode: true,
         ...(number && { number }),
+        // Adicionar campos opcionais se fornecidos
+        ...(options?.rejectCall !== undefined && { rejectCall: options.rejectCall }),
+        ...(options?.msgCall !== undefined && { msgCall: options.msgCall }),
+        ...(options?.groupsIgnore !== undefined && { groupsIgnore: options.groupsIgnore }),
+        ...(options?.alwaysOnline !== undefined && { alwaysOnline: options.alwaysOnline }),
+        ...(options?.readMessages !== undefined && { readMessages: options.readMessages }),
+        ...(options?.readStatus !== undefined && { readStatus: options.readStatus }),
+        ...(options?.syncFullHistory !== undefined && { syncFullHistory: options.syncFullHistory }),
+        ...(options?.proxyHost && { proxyHost: options.proxyHost }),
+        ...(options?.proxyPort && { proxyPort: options.proxyPort }),
+        ...(options?.proxyProtocol && { proxyProtocol: options.proxyProtocol }),
+        ...(options?.proxyUsername && { proxyUsername: options.proxyUsername }),
+        ...(options?.proxyPassword && { proxyPassword: options.proxyPassword }),
       }
   
 //      console.log("Payload para criação de instância:", JSON.stringify(payload))
@@ -187,8 +217,10 @@ export const evolutionApi = {
         }
       }>("/instance/create", {
         method: "POST",
-        body: JSON.stringify(payload),
-      }, apiKey)
+        body: JSON.stringify(payload), // <-- Correção: Descomentar 'payload'
+      })
+
+//      console.log("Resposta da criação de instância:", response)
 
       // Verifica se a resposta contém os dados esperados
       if (!response || !response.instance || !response.instance.instanceId || !response.hash) {
@@ -199,16 +231,17 @@ export const evolutionApi = {
       return {
         success: true,
         message: "Device Instance created successfully",
-        version: '2.2.4.4',
+        version: '2.3.1',
         steps: "Send the QR Code or Pairing Code to the customer and ask them to read it within 30 seconds",
         data: {
           instanceName: response.instance.instanceName,
           instanceId: response.instance.instanceId, // Usar o instanceId retornado
           number: number || null,
-          createdAt: response.instance.createdAt || new Date().toISOString(),
-          token: response.hash,
-          ownerJid: response.instance.owner,
-          status: mapStatusFromApi(response.instance.status || "connecting"),
+          createdAt: response.instance.createdAt || new Date().toISOString(), // Usar o da API se existir
+          token: response.hash, // O token é o hash retornado pela API de criação
+          ownerJid: response.instance.owner, // Adicionar se a API retornar
+          // Outros campos de 'Instance' podem não estar disponíveis imediatamente na criação
+          status: mapStatusFromApi(response.instance.status || "connecting"), // Status inicial
         }
       }
     } catch (error) {
@@ -223,10 +256,9 @@ export const evolutionApi = {
   // Obter QR Code
   async getQrCode(
     instanceName: string,
-    apiKey?: string
   ): Promise<ApiResponse<{ qrcode?: string; base64?: string; pairingCode?: string }>> {
     try {
-      const response = await fetchFromApi<any>(`/instance/connect/${instanceName}`, {}, apiKey)
+      const response = await fetchFromApi<any>(`/instance/connect/${instanceName}`)
 
      // console.log("Resposta do QR Code:", JSON.stringify(response, null, 2))
 
@@ -268,9 +300,9 @@ export const evolutionApi = {
   },
 
   // Verificar status da instância
-  async checkInstanceStatus(instanceName: string, apiKey?: string): Promise<ApiResponse<{ status: string }>> {
+  async checkInstanceStatus(instanceName: string): Promise<ApiResponse<{ status: string }>> {
     try {
-      const response = await fetchFromApi<any>(`/instance/connectionState/${instanceName}`, {}, apiKey)
+      const response = await fetchFromApi<any>(`/instance/connectionState/${instanceName}`)
 
    //   console.log("Resposta do status da instância:", JSON.stringify(response, null, 2))
 
@@ -300,11 +332,13 @@ export const evolutionApi = {
   },
 
   // Desconectar instância (logout)
-  async disconnectInstance(instanceName: string, apiKey?: string): Promise<ApiResponse> {
+  async disconnectInstance(instanceName: string): Promise<ApiResponse> {
     try {
       const response = await fetchFromApi(`/instance/logout/${instanceName}`, {
         method: "DELETE",
-      }, apiKey)
+      })
+
+//      console.log("Resposta da desconexão:", response)
 
       return {
         success: true,
@@ -317,14 +351,14 @@ export const evolutionApi = {
         error: error instanceof Error ? error.message : "Unknown error",
       }
     }
-  },
+  }, // <--- Vírgula adicionada/confirmada
 
   // Nova função para desconectar pelo número
-  async disconnectDeviceByNumber(number: string, apiKey?: string): Promise<ApiResponse> {
+  async disconnectDeviceByNumber(number: string): Promise<ApiResponse> {
     try {
 //      console.log(`Tentando desconectar dispositivo com número: ${number}`)
       // 1. Encontrar a instância pelo número
-      const instanceDetails = await this.getInstanceDetailsByNumber(number, apiKey)
+      const instanceDetails = await this.getInstanceDetailsByNumber(number)
 
       if (!instanceDetails.exists || !instanceDetails.instanceName) {
 //        console.log(`Nenhuma instância encontrada para o número: ${number}`)
@@ -336,7 +370,7 @@ export const evolutionApi = {
 
 //      console.log(`Instância encontrada: ${instanceDetails.instanceName}. Desconectando...`)
       // 2. Chamar a função de desconexão existente com o nome da instância
-      return await this.disconnectInstance(instanceDetails.instanceName, apiKey)
+      return await this.disconnectInstance(instanceDetails.instanceName)
 
     } catch (error) {
       console.error(`Erro ao desconectar dispositivo pelo número ${number}:`, error)
@@ -345,14 +379,16 @@ export const evolutionApi = {
         error: error instanceof Error ? error.message : "Unknown error during disconnection by number",
       }
     }
-  },
+  }, // <--- Vírgula adicionada/confirmada
 
   // Deletar instância
-  async deleteInstance(instanceName: string, apiKey?: string): Promise<ApiResponse> {
+  async deleteInstance(instanceName: string): Promise<ApiResponse> {
     try {
       const response = await fetchFromApi(`/instance/delete/${instanceName}`, {
         method: "DELETE",
-      }, apiKey)
+      })
+
+//      console.log("Resposta da exclusão:", response)
 
       return {
         success: true,
@@ -365,14 +401,14 @@ export const evolutionApi = {
         error: error instanceof Error ? error.message : "Unknown error",
       }
     }
-  },
+  }, // <--- Vírgula adicionada
 
-  // Função para deletar uma instância pelo número do dispositivo
-  async deleteDeviceByNumber(number: string, apiKey?: string): Promise<ApiResponse> {
+  // Função para deletar uma instância pelo número do dispositivo (Removida a duplicata anterior)
+  async deleteDeviceByNumber(number: string): Promise<ApiResponse> {
     try {
 //      console.log(`Tentando deletar dispositivo com número: ${number}`)
       // 1. Encontrar a instância pelo número
-      const instanceDetails = await this.getInstanceDetailsByNumber(number, apiKey)
+      const instanceDetails = await this.getInstanceDetailsByNumber(number)
 
       if (!instanceDetails.exists || !instanceDetails.instanceName) {
 //        console.log(`Nenhuma instância encontrada para o número: ${number}`)
@@ -384,7 +420,7 @@ export const evolutionApi = {
 
 //      console.log(`Instância encontrada: ${instanceDetails.instanceName}. Deletando...`)
       // 2. Chamar a função de exclusão existente com o nome da instância
-      return await this.deleteInstance(instanceDetails.instanceName, apiKey)
+      return await this.deleteInstance(instanceDetails.instanceName)
 
     } catch (error) {
       console.error(`Erro ao deletar dispositivo pelo número ${number}:`, error)
@@ -393,12 +429,12 @@ export const evolutionApi = {
         error: error instanceof Error ? error.message : "Unknown error during deletion by number",
       }
     }
-  },
+  }, // <--- Vírgula adicionada
 
   // Função para obter detalhes de uma instância específica
-  async getInstanceDetails(instanceName: string, apiKey?: string): Promise<{ exists: boolean; instance?: Instance; number?: string | null; status?: string }> { // Ajustado tipo de retorno para incluir number e status
+  async getInstanceDetails(instanceName: string): Promise<{ exists: boolean; instance?: Instance; number?: string | null; status?: string }> { // Ajustado tipo de retorno para incluir number e status
     try {
-      const response = await this.listInstances(apiKey);
+      const response = await this.listInstances();
 
       if (response.success && response.data) {
         const instance = response.data.find(
@@ -424,7 +460,7 @@ export const evolutionApi = {
   }, // <--- Vírgula adicionada
 
   // Obter detalhes da instância pelo número
-  async getInstanceDetailsByNumber(number: string, apiKey?: string): Promise<{ exists: boolean; instanceName?: string; status?: string }> {
+  async getInstanceDetailsByNumber(number: string): Promise<{ exists: boolean; instanceName?: string; status?: string }> {
     try {
       const response = await this.listInstances();
 
